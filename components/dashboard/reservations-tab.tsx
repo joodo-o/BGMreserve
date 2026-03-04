@@ -48,7 +48,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 
-const ADMIN_CANCEL_PASSWORD = "bgm923"
+const ADMIN_CANCEL_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_CODE2
 
 // ─── Timeline row for one table ────────────────────────────────────────
 function TimelineRow({
@@ -188,7 +188,7 @@ function BookingForm({
   const [description, setDescription] = useState("")
 
   // Admin override is triggered by special name in the "이름" field
-  const isAdminOverride = userName.trim() === "bgmadmin923"
+  const isAdminOverride = userName.trim() === process.env.NEXT_PUBLIC_ADMIN_CODE
   const isBookingTemporarilyDisabled =
     (!isWithinBookingWindow || isPastDate) && !isAdminOverride
 
