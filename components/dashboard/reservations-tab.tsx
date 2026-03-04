@@ -643,6 +643,7 @@ export function ReservationsTab() {
     async (data: Omit<Reservation, "id">) => {
       const created = await createReservation(data)
       setReservations((prev) => [...prev, created])
+      window.location.reload()
     },
     []
   )
