@@ -9,7 +9,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'BGM - Board Game Members',
+  title: 'BGM Reservation System',
   description: 'Level up your game nights. Join the ultimate board game club community.',
   generator: 'v0.app',
   icons: {
