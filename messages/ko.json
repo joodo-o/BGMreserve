@@ -1,0 +1,53 @@
+{
+  "HomePage": {
+    "title": "BGM - Board Game Mania"
+  },
+  "Landing": {
+    "navbar": {
+      "about": "소개",
+      "gallery": "갤러리",
+      "join": "가입 신청",
+      "reservations": "예약"
+    },
+    "hero": {
+      "badge": "BGM - Board Game Mania",
+      "titleLine1": "레벨 업",
+      "titleWith": "함께하는",
+      "description": "서울대학교 자연과학대학 보드게임 동아리 BGM입니다.",
+      "primaryCta": "동아리 가입 신청",
+      "secondaryCta": "예약"
+    },
+    "recruitment": {
+      "submittedTitle": "지원이 접수되었습니다!",
+      "submittedBody": "지원해 주셔서 감사합니다. 제출하신 이메일과 전화번호로 곧 안내를 보내드릴게요.",
+      "title": "BGM에 합류하세요",
+      "subtitle": "주사위를 굴릴 준비가 되셨나요? 아래 정보를 작성해 주시면 함께할 자리를 마련해 드릴게요.",
+      "fields": {
+        "fullName": "이름",
+        "fullNamePlaceholder": "홍길동",
+        "email": "이메일 (스누메일)",
+        "emailPlaceholder": "myemail@snu.ac.kr",
+        "phone": "전화번호(숫자만 입력하세요)",
+        "phonePlaceholder": "010-1234-5678",
+        "reason": "왜 가입하고 싶으신가요?",
+        "reasonPlaceholder": "보드게임 경험과 기대하는 점을 자유롭게 적어주세요..."
+      },
+      "button": {
+        "sending": "전송 중...",
+        "submit": "신청 제출"
+      },
+      "errors": {
+        "emailDomain": "서울대학교 이메일(@snu.ac.kr)만 사용할 수 있습니다.",
+        "phoneRequired": "전화번호를 입력해 주세요."
+      }
+    }
+  },
+  "Dashboard": {
+    "shell": {
+      "tabs": {
+        "reservations": "예약"
+      }
+    }
+  }
+}
+
