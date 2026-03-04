@@ -641,11 +641,17 @@ export function ReservationsTab() {
 
   const handleBook = useCallback(
     async (data: Omit<Reservation, "id">) => {
-      const created = await createReservation(data)
-      setReservations((prev) => [...prev, created])
-      window.location.reload()
+      try {
+        await createReservation(data)
+        const updatedData = await fetchReservations()
+        setReservations(updatedData)
+        alert("예약이 완료되었습니다!")
+      } catch (error) {
+        console.error("Booking failed:", error)
+        alert("예약에 실패했습니다. 다시 시도해주세요.")
+      }
     },
-    []
+    [fetchReservations]
   )
 
   const handleRequestCancel = useCallback((r: Reservation) => {
@@ -655,18 +661,27 @@ export function ReservationsTab() {
   }, [])
 
   const handleConfirmCancel = useCallback(async () => {
-    if (!cancelTarget) return
-    const input = cancelPasswordInput.trim()
+    if (!cancelTarget) return;
+    const input = cancelPasswordInput.trim();
+    
     if (input === cancelTarget.cancelPassword || input === ADMIN_CANCEL_PASSWORD) {
-      await deleteReservation(cancelTarget.id)
-      setReservations((prev) => prev.filter((r) => r.id !== cancelTarget.id))
-      setCancelTarget(null)
-      setCancelPasswordInput("")
-      setCancelError("")
+      try {
+        await deleteReservation(cancelTarget.id);
+        
+        // ✨ 삭제 후 목록 다시 불러오기
+        const updatedData = await fetchReservations();
+        setReservations(updatedData);
+        
+        setCancelTarget(null);
+        setCancelPasswordInput("");
+        alert("취소되었습니다.");
+      } catch (error) {
+        alert("취소 중 오류가 발생했습니다.");
+      }
     } else {
-      setCancelError("Incorrect password. Use your 4-digit cancel password, or admin password.")
+      setCancelError("비밀번호가 틀렸습니다.");
     }
-  }, [cancelTarget, cancelPasswordInput])
+  }, [cancelTarget, cancelPasswordInput, fetchReservations]);
 
   const closeCancelDialog = useCallback(() => {
     setCancelTarget(null)
