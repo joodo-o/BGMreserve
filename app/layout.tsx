@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   description: 'Level up your game nights. Join the ultimate board game club community.',
   generator: 'v0.app', // 이 줄은 삭제해도 무방합니다.
   icons: {
-    icon: '/BGMlogo.png', // public 폴더에 넣은 본인 로고 파일명으로 변경
-    apple: '/BGMlogo.png', // 아이폰 홈화면 추가용 아이콘도 동일하게 변경 가능
+    icon: '/BGMlogo.png?v=1', // public 폴더에 넣은 본인 로고 파일명으로 변경
+    apple: '/BGMlogo.png?v=1', // 아이폰 홈화면 추가용 아이콘도 동일하게 변경 가능
   },
 }
 
