@@ -11,23 +11,10 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: 'BGM Reservation System',
   description: 'Level up your game nights. Join the ultimate board game club community.',
-  generator: 'v0.app',
+  generator: 'v0.app', // 이 줄은 삭제해도 무방합니다.
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/BGMlogo.png', // public 폴더에 넣은 본인 로고 파일명으로 변경
+    apple: '/BGMlogo.png', // 아이폰 홈화면 추가용 아이콘도 동일하게 변경 가능
   },
 }
 
