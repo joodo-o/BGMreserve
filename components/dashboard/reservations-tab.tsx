@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import Image from "next/image"
 import { Calendar } from "@/components/ui/calendar"
 import {
@@ -10,10 +10,10 @@ import {
   formatDate,
   getSlotLabel,
   hasConflict,
-  getSeedReservations,
   type Reservation,
   type Table,
 } from "@/lib/reservation-store"
+import { fetchReservations, createReservation, deleteReservation } from "@/lib/supabase-reservations"
 import {
   CalendarClock,
   AlertTriangle,
@@ -172,7 +172,7 @@ function BookingForm({
 }: {
   selectedDate: string
   reservations: Reservation[]
-  onBook: (r: Omit<Reservation, "id">) => void
+  onBook: (r: Omit<Reservation, "id">) => Promise<void> | void
   isWithinBookingWindow: boolean
   isPastDate: boolean
 }) {
@@ -587,13 +587,32 @@ function DayReservationsList({
 // ─── Main export ──────────────────────────────────────────────────────
 export function ReservationsTab() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
-  const [reservations, setReservations] = useState<Reservation[]>(
-    getSeedReservations
-  )
+  const [reservations, setReservations] = useState<Reservation[]>([])
   const [detailReservation, setDetailReservation] = useState<Reservation | null>(null)
   const [cancelTarget, setCancelTarget] = useState<Reservation | null>(null)
   const [cancelPasswordInput, setCancelPasswordInput] = useState("")
   const [cancelError, setCancelError] = useState("")
+  const [loadError, setLoadError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const data = await fetchReservations()
+        if (!cancelled) {
+          setReservations(data)
+          setLoadError(null)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setLoadError("예약 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.")
+        }
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const dateStr = formatDate(selectedDate)
 
@@ -621,12 +640,9 @@ export function ReservationsTab() {
   const toMonth = new Date(navBase.getFullYear(), navBase.getMonth() + 3, 1)
 
   const handleBook = useCallback(
-    (data: Omit<Reservation, "id">) => {
-      const newReservation: Reservation = {
-        ...data,
-        id: `res-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      }
-      setReservations((prev) => [...prev, newReservation])
+    async (data: Omit<Reservation, "id">) => {
+      const created = await createReservation(data)
+      setReservations((prev) => [...prev, created])
     },
     []
   )
@@ -637,10 +653,11 @@ export function ReservationsTab() {
     setCancelError("")
   }, [])
 
-  const handleConfirmCancel = useCallback(() => {
+  const handleConfirmCancel = useCallback(async () => {
     if (!cancelTarget) return
     const input = cancelPasswordInput.trim()
     if (input === cancelTarget.cancelPassword || input === ADMIN_CANCEL_PASSWORD) {
+      await deleteReservation(cancelTarget.id)
       setReservations((prev) => prev.filter((r) => r.id !== cancelTarget.id))
       setCancelTarget(null)
       setCancelPasswordInput("")
@@ -678,8 +695,13 @@ export function ReservationsTab() {
           BGM 동아리방 예약 시스템
         </h1>
         <p className="text-sm text-muted-foreground max-w-xl">
-          여기서 동아리 활동을 위한 예약을 하세요!
+          날짜를 선택하고 테이블과 시간을 골라 BGM 동아리방을 예약하세요.
         </p>
+        {loadError && (
+          <p className="text-xs text-destructive mt-1">
+            {loadError}
+          </p>
+        )}
       </div>
 
       {/* Legend */}
