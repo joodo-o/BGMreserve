@@ -49,7 +49,13 @@ import {
 } from "@/components/ui/dialog"
 
 const ADMIN_CANCEL_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_CODE2
-
+// 숫지만 남기고 적절한 위치에 하이픈을 넣는 함수입니다.
+const formatPhoneNumber = (value: string) => {
+  const phone = value.replace(/[^\d]/g, "") // 숫자가 아닌 문자는 모두 제거
+  if (phone.length <= 3) return phone
+  if (phone.length <= 7) return `${phone.slice(0, 3)}-${phone.slice(3)}`
+  return `${phone.slice(0, 3)}-${phone.slice(3, 7)}-${phone.slice(7, 11)}`
+}
 // ─── Timeline row for one table ────────────────────────────────────────
 function TimelineRow({
   table,
@@ -351,7 +357,11 @@ function BookingForm({
           <Input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e)=> {
+              // 입력된 값을 바로 넣지 않고, formatPhoneNumber를 거쳐서 넣습니다.
+              const formatted = formatPhoneNumber(e.target.value)
+              setPhone(formatted)
+            }}
             placeholder="010-1234-5678"
             className="border-border bg-secondary text-foreground focus-visible:ring-neon-red h-9 text-sm"
           />
