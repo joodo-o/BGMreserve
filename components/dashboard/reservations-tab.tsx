@@ -594,25 +594,23 @@ export function ReservationsTab() {
   const [cancelError, setCancelError] = useState("")
   const [loadError, setLoadError] = useState<string | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      try {
-        const data = await fetchReservations()
-        if (!cancelled) {
-          setReservations(data)
-          setLoadError(null)
-        }
-      } catch (error) {
-        if (!cancelled) {
-          setLoadError("예약 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.")
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
+  const loadReservations = useCallback(async () => {
+    try {
+      const data = await fetchReservations()
+      setReservations(data)
+      setLoadError(null)
+    } catch (error) {
+      setLoadError("예약 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.")
     }
   }, [])
+
+  useEffect(() => {
+    // 초기 로드
+    loadReservations()
+    // 주기적인 폴링으로 다른 클라이언트의 변경도 반영
+    const id = setInterval(loadReservations, 4000)
+    return () => clearInterval(id)
+  }, [loadReservations])
 
   const dateStr = formatDate(selectedDate)
 
@@ -641,17 +639,12 @@ export function ReservationsTab() {
 
   const handleBook = useCallback(
     async (data: Omit<Reservation, "id">) => {
-      try {
-        await createReservation(data)
-        const updatedData = await fetchReservations()
-        setReservations(updatedData)
-        alert("예약이 완료되었습니다!")
-      } catch (error) {
-        console.error("Booking failed:", error)
-        alert("예약에 실패했습니다. 다시 시도해주세요.")
-      }
+      const created = await createReservation(data)
+      setReservations((prev) => [...prev, created])
+      // Supabase 트리거/기타 변경까지 동기화하기 위해 다시 로드
+      loadReservations()
     },
-    [fetchReservations]
+    [loadReservations]
   )
 
   const handleRequestCancel = useCallback((r: Reservation) => {
@@ -660,28 +653,23 @@ export function ReservationsTab() {
     setCancelError("")
   }, [])
 
-  const handleConfirmCancel = useCallback(async () => {
-    if (!cancelTarget) return;
-    const input = cancelPasswordInput.trim();
-    
-    if (input === cancelTarget.cancelPassword || input === ADMIN_CANCEL_PASSWORD) {
-      try {
-        await deleteReservation(cancelTarget.id);
-        
-        // ✨ 삭제 후 목록 다시 불러오기
-        const updatedData = await fetchReservations();
-        setReservations(updatedData);
-        
-        setCancelTarget(null);
-        setCancelPasswordInput("");
-        alert("취소되었습니다.");
-      } catch (error) {
-        alert("취소 중 오류가 발생했습니다.");
+  const handleConfirmCancel = useCallback(
+    async () => {
+      if (!cancelTarget) return
+      const input = cancelPasswordInput.trim()
+      if (input === cancelTarget.cancelPassword || input === ADMIN_CANCEL_PASSWORD) {
+        await deleteReservation(cancelTarget.id)
+        setReservations((prev) => prev.filter((r) => r.id !== cancelTarget.id))
+        setCancelTarget(null)
+        setCancelPasswordInput("")
+        setCancelError("")
+        loadReservations()
+      } else {
+        setCancelError("Incorrect password. Use your 4-digit cancel password, or admin password.")
       }
-    } else {
-      setCancelError("비밀번호가 틀렸습니다.");
-    }
-  }, [cancelTarget, cancelPasswordInput, fetchReservations]);
+    },
+    [cancelTarget, cancelPasswordInput, loadReservations]
+  )
 
   const closeCancelDialog = useCallback(() => {
     setCancelTarget(null)
